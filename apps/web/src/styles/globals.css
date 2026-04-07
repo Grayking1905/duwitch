@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design Tokens ─────────────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --brand-primary:   hsl(220 72% 50%);
+  --brand-secondary: hsl(262 72% 58%);
+  --brand-accent:    hsl(198 90% 48%);
+
+  /* Surfaces (light) */
+  --bg-base:     hsl(222 24% 98%);
+  --bg-elevated: hsl(0 0% 100%);
+  --bg-subtle:   hsl(222 20% 94%);
+  --border:      hsl(222 18% 87%);
+
+  /* Text */
+  --text-primary:   hsl(222 28% 8%);
+  --text-secondary: hsl(222 14% 40%);
+  --text-muted:     hsl(222 12% 60%);
+}
+
+.dark {
+  /* Surfaces (dark) */
+  --bg-base:     hsl(222 28% 8%);
+  --bg-elevated: hsl(222 26% 11%);
+  --bg-subtle:   hsl(222 24% 14%);
+  --border:      hsl(222 22% 20%);
+
+  /* Text */
+  --text-primary:   hsl(222 20% 96%);
+  --text-secondary: hsl(222 14% 65%);
+  --text-muted:     hsl(222 12% 45%);
+}
+
+/* ── Base ──────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.6;
+    min-height: 100dvh;
+  }
+
+  ::selection {
+    background-color: hsl(220 72% 50% / 0.25);
+    color: inherit;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+}
+
+/* ── Utilities ─────────────────────────────────────────────────────── */
+@layer utilities {
+  .glass {
+    background: hsl(222 26% 11% / 0.7);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border: 1px solid hsl(222 22% 20% / 0.6);
+  }
+
+  .glass-light {
+    background: hsl(0 0% 100% / 0.8);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border: 1px solid hsl(222 18% 87% / 0.8);
+  }
+
+  .gradient-brand {
+    background: linear-gradient(135deg, hsl(220 72% 50%), hsl(262 72% 58%));
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(220 72% 60%), hsl(262 72% 68%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-brand {
+    box-shadow: 0 0 20px hsl(220 72% 50% / 0.4), 0 0 40px hsl(220 72% 50% / 0.15);
+  }
+
+  .live-dot::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: hsl(142 70% 45%);
+    margin-right: 6px;
+    animation: livePulse 1.5s ease-in-out infinite;
+  }
+
+  .text-balance { text-wrap: balance; }
+
+  /* Scrollbar hide */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* ── Animations ────────────────────────────────────────────────────── */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-subtle) 25%, var(--bg-elevated) 50%, var(--bg-subtle) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
