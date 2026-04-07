@@ -1,6 +1,7 @@
 {
   "name": "@duwitch/ui",
   "version": "0.0.1",
+  "type": "module",
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,7 +14,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "lint": "eslint src/",
+    "lint": "eslint src/ --ext .ts,.tsx",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist"
   },

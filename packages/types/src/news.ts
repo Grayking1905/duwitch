@@ -6,17 +6,30 @@ import { UserSchema } from './user'
 export const ArticleSourceSchema = z.enum(['RSS', 'COMMUNITY', 'CURATED'])
 export type ArticleSource = z.infer<typeof ArticleSourceSchema>
 
-export const CommentSchema = z.object({
-  id: z.string(),
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type CommentType = z.ZodObject<any>
+
+export const CommentSchema: CommentType = z.object({
+  id:       z.string(),
   articleId: z.string(),
-  authorId: z.string(),
-  author: UserSchema.pick({ id: true, username: true, avatar: true }).optional(),
-  content: z.string().min(1).max(2000),
-  parentId: z.string().nullable().optional(),
-  replies: z.array(z.lazy((): z.ZodTypeAny => CommentSchema)).optional(),
+  authorId:  z.string(),
+  author:    UserSchema.pick({ id: true, username: true, avatar: true }).optional(),
+  content:   z.string().min(1).max(2000),
+  parentId:  z.string().nullable().optional(),
+  replies:   z.array(z.lazy(() => CommentSchema)).optional(),
   createdAt: z.string().datetime(),
 })
-export type Comment = z.infer<typeof CommentSchema>
+export type Comment = {
+  id: string
+  articleId: string
+  authorId: string
+  author?: { id: string; username: string; avatar?: string | null }
+  content: string
+  parentId?: string | null
+  replies?: Comment[]
+  createdAt: string
+}
+
 
 export const ArticleSchema = z.object({
   id: z.string(),
