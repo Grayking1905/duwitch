@@ -32,13 +32,13 @@ jobs:
 
       # Build @duwitch/types first so all packages can resolve it
       - name: Build shared types
-        run: pnpm turbo build --filter=@duwitch/types
+        run: pnpm run build --filter=@duwitch/types
 
       - name: Type check
-        run: pnpm turbo type-check
+        run: pnpm run type-check
 
       - name: Lint
-        run: pnpm turbo lint
+        run: pnpm run lint
 
   # ── Tests ────────────────────────────────────────────────────────────
   test:
@@ -88,7 +88,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build shared types
-        run: pnpm turbo build --filter=@duwitch/types
+        run: pnpm run build --filter=@duwitch/types
 
       - name: Generate Prisma client
         run: pnpm --filter @duwitch/api exec prisma generate
@@ -97,7 +97,7 @@ jobs:
         run: pnpm --filter @duwitch/api exec prisma migrate deploy
 
       - name: Run tests
-        run: pnpm turbo test
+        run: pnpm run test
 
   # ── Build Docker Images ──────────────────────────────────────────────
   build:
