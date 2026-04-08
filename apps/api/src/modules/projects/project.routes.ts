@@ -14,12 +14,14 @@ export async function projectsRoutes(app: FastifyInstance) {
 
     const where = {
       ...(status ? { status: status as ProjectStatus } : {}),
-      ...(tag    ? { techTags: { has: tag } }         : {}),
+      ...(tag ? { techTags: { has: tag } } : {}),
     }
 
     const [projects, total] = await Promise.all([
       prisma.project.findMany({
-        where, skip, take: parseInt(limit),
+        where,
+        skip,
+        take: parseInt(limit),
         orderBy: { createdAt: 'desc' },
         include: {
           owner: { select: { id: true, username: true, avatar: true } },
@@ -34,25 +36,21 @@ export async function projectsRoutes(app: FastifyInstance) {
   })
 
   // POST /projects — create
-  app.post(
-    '/',
-    { preHandler: [app.authenticate] },
-    async (req, reply) => {
-      const userId = req.user.sub
-      const body = req.body as { title: string; description: string; techTags?: string[] }
-      const project = await prisma.project.create({
-        data: {
-          title:       body.title,
-          description: body.description,
-          techTags:    body.techTags ?? [],
-          ownerId:     userId,
-          members:     { create: { userId } },
-        },
-        include: { owner: { select: { id: true, username: true, avatar: true } } },
-      })
-      return reply.code(201).send(project)
-    }
-  )
+  app.post('/', { preHandler: [app.authenticate] }, async (req, reply) => {
+    const userId = req.user.sub
+    const body = req.body as { title: string; description: string; techTags?: string[] }
+    const project = await prisma.project.create({
+      data: {
+        title: body.title,
+        description: body.description,
+        techTags: body.techTags ?? [],
+        ownerId: userId,
+        members: { create: { userId } },
+      },
+      include: { owner: { select: { id: true, username: true, avatar: true } } },
+    })
+    return reply.code(201).send(project)
+  })
 
   // GET /projects/:id
   app.get<{ Params: ProjectParams }>('/:id', async (req, reply) => {
@@ -60,10 +58,10 @@ export async function projectsRoutes(app: FastifyInstance) {
     const project = await prisma.project.findUnique({
       where: { id },
       include: {
-        owner:   { select: { id: true, username: true, avatar: true } },
-        roles:   true,
+        owner: { select: { id: true, username: true, avatar: true } },
+        roles: true,
         members: { include: { user: { select: { id: true, username: true, avatar: true } } } },
-        _count:  { select: { proposals: true } },
+        _count: { select: { proposals: true } },
       },
     })
     if (!project) return reply.code(404).send({ code: 'NOT_FOUND', message: 'Project not found' })

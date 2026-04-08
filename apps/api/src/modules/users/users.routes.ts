@@ -8,8 +8,14 @@ export async function usersRoutes(app: FastifyInstance) {
     const user = await prisma.user.findUnique({
       where: { username },
       select: {
-        id: true, username: true, avatar: true, bio: true,
-        availability: true, xp: true, githubUrl: true, portfolioLinks: true,
+        id: true,
+        username: true,
+        avatar: true,
+        bio: true,
+        availability: true,
+        xp: true,
+        githubUrl: true,
+        portfolioLinks: true,
         skills: { include: { skill: true } },
         _count: { select: { ownedProjects: true, articles: true } },
         createdAt: true,
@@ -20,33 +26,35 @@ export async function usersRoutes(app: FastifyInstance) {
   })
 
   // PATCH /users/me — update own profile (auth required)
-  app.patch(
-    '/me',
-    { preHandler: [app.authenticate] },
-    async (req, reply) => {
-      const userId = req.user.sub
-      const body = req.body as {
-        bio?: string
-        avatar?: string
-        githubUrl?: string
-        portfolioLinks?: string[]
-        availability?: 'OPEN' | 'BUSY' | 'UNAVAILABLE'
-      }
-      const updated = await prisma.user.update({
-        where: { id: userId },
-        data: {
-          bio:            body.bio,
-          avatar:         body.avatar,
-          githubUrl:      body.githubUrl,
-          portfolioLinks: body.portfolioLinks,
-          availability:   body.availability,
-        },
-        select: {
-          id: true, username: true, email: true, avatar: true,
-          bio: true, availability: true, xp: true, updatedAt: true,
-        },
-      })
-      return reply.send(updated)
+  app.patch('/me', { preHandler: [app.authenticate] }, async (req, reply) => {
+    const userId = req.user.sub
+    const body = req.body as {
+      bio?: string
+      avatar?: string
+      githubUrl?: string
+      portfolioLinks?: string[]
+      availability?: 'OPEN' | 'BUSY' | 'UNAVAILABLE'
     }
-  )
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        bio: body.bio,
+        avatar: body.avatar,
+        githubUrl: body.githubUrl,
+        portfolioLinks: body.portfolioLinks,
+        availability: body.availability,
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        avatar: true,
+        bio: true,
+        availability: true,
+        xp: true,
+        updatedAt: true,
+      },
+    })
+    return reply.send(updated)
+  })
 }

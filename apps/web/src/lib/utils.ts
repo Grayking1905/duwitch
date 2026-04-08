@@ -20,8 +20,8 @@ export function relativeTime(date: string | Date) {
   const d = typeof date === 'string' ? new Date(date) : date
   const seconds = Math.floor((Date.now() - d.getTime()) / 1000)
 
-  if (seconds < 60)    return 'just now'
-  if (seconds < 3600)  return `${Math.floor(seconds / 60)}m ago`
+  if (seconds < 60) return 'just now'
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
   if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
@@ -30,6 +30,6 @@ export function relativeTime(date: string | Date) {
 /** Format number with K/M suffix */
 export function formatCount(n: number) {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}K`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
   return String(n)
 }

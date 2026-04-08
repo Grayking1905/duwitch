@@ -28,12 +28,8 @@ export async function authRoutes(app: FastifyInstance) {
   })
 
   // GET /auth/me — requires JWT
-  app.get(
-    '/me',
-    { preHandler: [app.authenticate] },
-    async (req, reply) => {
-      const user = await authService.getMe(req.user.sub)
-      return reply.send(user)
-    }
-  )
+  app.get('/me', { preHandler: [app.authenticate] }, async (req, reply) => {
+    const user = await authService.getMe(req.user.sub)
+    return reply.send(user)
+  })
 }

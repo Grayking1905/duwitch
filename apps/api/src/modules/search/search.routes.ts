@@ -11,7 +11,7 @@ export async function searchRoutes(app: FastifyInstance) {
     async (req, reply) => {
       const { q = '', type = 'devs,projects,news', limit = '10' } = req.query
       const types = type.split(',')
-      const take  = parseInt(limit)
+      const take = parseInt(limit)
 
       if (!q.trim()) return reply.send({ devs: [], projects: [], articles: [] })
 
@@ -21,20 +21,27 @@ export async function searchRoutes(app: FastifyInstance) {
               where: {
                 OR: [
                   { username: { contains: q, mode: 'insensitive' } },
-                  { bio:      { contains: q, mode: 'insensitive' } },
+                  { bio: { contains: q, mode: 'insensitive' } },
                 ],
               },
               take,
-              select: { id: true, username: true, avatar: true, bio: true, availability: true, xp: true },
+              select: {
+                id: true,
+                username: true,
+                avatar: true,
+                bio: true,
+                availability: true,
+                xp: true,
+              },
             })
           : Promise.resolve([]),
         types.includes('projects')
           ? prisma.project.findMany({
               where: {
                 OR: [
-                  { title:       { contains: q, mode: 'insensitive' } },
+                  { title: { contains: q, mode: 'insensitive' } },
                   { description: { contains: q, mode: 'insensitive' } },
-                  { techTags:    { has: q } },
+                  { techTags: { has: q } },
                 ],
               },
               take,
@@ -45,13 +52,17 @@ export async function searchRoutes(app: FastifyInstance) {
           ? prisma.article.findMany({
               where: {
                 published: true,
-                OR: [
-                  { title: { contains: q, mode: 'insensitive' } },
-                  { tags:  { has: q } },
-                ],
+                OR: [{ title: { contains: q, mode: 'insensitive' } }, { tags: { has: q } }],
               },
               take,
-              select: { id: true, slug: true, title: true, excerpt: true, tags: true, publishedAt: true },
+              select: {
+                id: true,
+                slug: true,
+                title: true,
+                excerpt: true,
+                tags: true,
+                publishedAt: true,
+              },
             })
           : Promise.resolve([]),
       ])

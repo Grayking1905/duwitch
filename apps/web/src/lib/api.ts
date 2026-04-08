@@ -43,14 +43,14 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 }
 
 export const api = {
-  get:    <T>(path: string, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
-            request<T>(path, { ...opts, method: 'GET' }),
-  post:   <T>(path: string, body: unknown, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
-            request<T>(path, { ...opts, method: 'POST', body }),
-  patch:  <T>(path: string, body: unknown, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
-            request<T>(path, { ...opts, method: 'PATCH', body }),
+  get: <T>(path: string, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
+    request<T>(path, { ...opts, method: 'GET' }),
+  post: <T>(path: string, body: unknown, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
+    request<T>(path, { ...opts, method: 'POST', body }),
+  patch: <T>(path: string, body: unknown, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
+    request<T>(path, { ...opts, method: 'PATCH', body }),
   delete: <T>(path: string, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
-            request<T>(path, { ...opts, method: 'DELETE' }),
+    request<T>(path, { ...opts, method: 'DELETE' }),
 }
 
 export { ApiError }

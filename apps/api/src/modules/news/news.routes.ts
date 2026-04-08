@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify'
 import { prisma } from '../../db/postgres/client'
 
-type NewsQuery   = { tag?: string; page?: string; limit?: string }
-type SlugParams  = { slug: string }
+type NewsQuery = { tag?: string; page?: string; limit?: string }
+type SlugParams = { slug: string }
 type ArticleBody = { title: string; content: string; tags?: string[] }
 
 export async function newsRoutes(app: FastifyInstance) {
@@ -18,14 +18,23 @@ export async function newsRoutes(app: FastifyInstance) {
 
     const [articles, total] = await Promise.all([
       prisma.article.findMany({
-        where, skip, take: parseInt(limit),
+        where,
+        skip,
+        take: parseInt(limit),
         orderBy: { publishedAt: 'desc' },
         select: {
-          id: true, slug: true, title: true, excerpt: true,
-          tags: true, source: true, externalUrl: true, views: true,
-          _count:   { select: { bookmarks: true, comments: true } },
-          author:   { select: { id: true, username: true, avatar: true } },
-          publishedAt: true, createdAt: true,
+          id: true,
+          slug: true,
+          title: true,
+          excerpt: true,
+          tags: true,
+          source: true,
+          externalUrl: true,
+          views: true,
+          _count: { select: { bookmarks: true, comments: true } },
+          author: { select: { id: true, username: true, avatar: true } },
+          publishedAt: true,
+          createdAt: true,
         },
       }),
       prisma.article.count({ where }),
@@ -42,10 +51,12 @@ export async function newsRoutes(app: FastifyInstance) {
       include: {
         author: { select: { id: true, username: true, avatar: true } },
         comments: {
-          where:   { parentId: null },
+          where: { parentId: null },
           include: {
-            author:  { select: { id: true, username: true, avatar: true } },
-            replies: { include: { author: { select: { id: true, username: true, avatar: true } } } },
+            author: { select: { id: true, username: true, avatar: true } },
+            replies: {
+              include: { author: { select: { id: true, username: true, avatar: true } } },
+            },
           },
           orderBy: { createdAt: 'asc' },
         },
@@ -79,8 +90,11 @@ export async function newsRoutes(app: FastifyInstance) {
 
       const article = await prisma.article.create({
         data: {
-          slug, title, content, tags,
-          source:   'COMMUNITY',
+          slug,
+          title,
+          content,
+          tags,
+          source: 'COMMUNITY',
           authorId: userId,
           published: false, // requires review
         },

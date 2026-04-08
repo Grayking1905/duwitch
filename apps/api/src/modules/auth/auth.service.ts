@@ -12,7 +12,10 @@ export class AuthService {
       where: { OR: [{ email: input.email }, { username: input.username }] },
     })
     if (exists) {
-      throw Object.assign(new Error('User already exists'), { statusCode: 409, code: 'USER_EXISTS' })
+      throw Object.assign(new Error('User already exists'), {
+        statusCode: 409,
+        code: 'USER_EXISTS',
+      })
     }
 
     const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS)
@@ -23,8 +26,14 @@ export class AuthService {
         passwordHash,
       },
       select: {
-        id: true, username: true, email: true, avatar: true,
-        bio: true, availability: true, xp: true, createdAt: true,
+        id: true,
+        username: true,
+        email: true,
+        avatar: true,
+        bio: true,
+        availability: true,
+        xp: true,
+        createdAt: true,
       },
     })
 
@@ -36,12 +45,18 @@ export class AuthService {
       where: { email: input.email },
     })
     if (!user || !user.passwordHash) {
-      throw Object.assign(new Error('Invalid credentials'), { statusCode: 401, code: 'INVALID_CREDENTIALS' })
+      throw Object.assign(new Error('Invalid credentials'), {
+        statusCode: 401,
+        code: 'INVALID_CREDENTIALS',
+      })
     }
 
     const valid = await bcrypt.compare(input.password, user.passwordHash)
     if (!valid) {
-      throw Object.assign(new Error('Invalid credentials'), { statusCode: 401, code: 'INVALID_CREDENTIALS' })
+      throw Object.assign(new Error('Invalid credentials'), {
+        statusCode: 401,
+        code: 'INVALID_CREDENTIALS',
+      })
     }
 
     const { accessToken, refreshToken } = await this.issueTokens(user.id)
@@ -49,8 +64,12 @@ export class AuthService {
       accessToken,
       refreshToken,
       user: {
-        id: user.id, username: user.username, email: user.email,
-        avatar: user.avatar, availability: user.availability, xp: user.xp,
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+        availability: user.availability,
+        xp: user.xp,
       },
     }
   }
@@ -58,7 +77,10 @@ export class AuthService {
   async refreshToken(token: string) {
     const stored = await redisClient.get(`refresh:${token}`)
     if (!stored) {
-      throw Object.assign(new Error('Invalid or expired refresh token'), { statusCode: 401, code: 'INVALID_REFRESH_TOKEN' })
+      throw Object.assign(new Error('Invalid or expired refresh token'), {
+        statusCode: 401,
+        code: 'INVALID_REFRESH_TOKEN',
+      })
     }
     const userId = stored
     await redisClient.del(`refresh:${token}`)
@@ -69,8 +91,13 @@ export class AuthService {
     return prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: {
-        id: true, username: true, email: true, avatar: true,
-        bio: true, availability: true, xp: true,
+        id: true,
+        username: true,
+        email: true,
+        avatar: true,
+        bio: true,
+        availability: true,
+        xp: true,
         skills: { include: { skill: true } },
         createdAt: true,
       },

@@ -20,16 +20,16 @@ Duwitch is a borderless space for developers to:
 
 Full architecture documentation: **[ARCHITECTURE.md](./ARCHITECTURE.md)**
 
-| Area | Stack |
-|------|-------|
-| Frontend | Next.js 14 (App Router), TypeScript, Tailwind CSS, Zustand, TanStack Query |
-| Backend | Node.js, Fastify, Socket.io, Prisma ORM, BullMQ |
-| Real-Time | Socket.io + mediasoup SFU (WebRTC) |
-| Code Share | Monaco Editor + Yjs CRDT |
-| Databases | PostgreSQL · MongoDB · Redis · Elasticsearch |
-| Storage | Cloudflare R2 (media, recordings) |
-| Infra | Docker · Kubernetes · GitHub Actions |
-| Monorepo | Turborepo + pnpm workspaces |
+| Area       | Stack                                                                      |
+| ---------- | -------------------------------------------------------------------------- |
+| Frontend   | Next.js 14 (App Router), TypeScript, Tailwind CSS, Zustand, TanStack Query |
+| Backend    | Node.js, Fastify, Socket.io, Prisma ORM, BullMQ                            |
+| Real-Time  | Socket.io + mediasoup SFU (WebRTC)                                         |
+| Code Share | Monaco Editor + Yjs CRDT                                                   |
+| Databases  | PostgreSQL · MongoDB · Redis · Elasticsearch                               |
+| Storage    | Cloudflare R2 (media, recordings)                                          |
+| Infra      | Docker · Kubernetes · GitHub Actions                                       |
+| Monorepo   | Turborepo + pnpm workspaces                                                |
 
 ---
 
@@ -72,4 +72,4 @@ duwitch/
 
 ---
 
-*Duwitch — April 2026*
+_Duwitch — April 2026_

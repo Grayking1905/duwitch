@@ -30,6 +30,7 @@
 ## 1. Vision & Core Principles
 
 ### What is Duwitch?
+
 Duwitch is a **developer-first community platform** designed to break geographic and professional isolation. It serves as:
 
 - A **collaboration hub** — developers find projects, propose ideas, and contribute across the globe
@@ -40,14 +41,14 @@ Duwitch is a **developer-first community platform** designed to break geographic
 
 ### Design Principles
 
-| Principle | Application |
-|-----------|-------------|
-| **Real-time first** | WebSockets for all live interactions; HTTP only for initial loads |
-| **Type-safe end-to-end** | Shared Zod schemas from `packages/types` used in both API and UI |
-| **Separation of concerns** | Self-contained feature modules in both API and frontend |
-| **Scalable by design** | Redis pub/sub, mediasoup SFU, BullMQ workers — no single-point bottlenecks |
-| **Security by default** | JWT + RBAC, rate limiting, helmet headers on every route |
-| **Open & extensible** | Monorepo design allows teams to own a single module independently |
+| Principle                  | Application                                                                |
+| -------------------------- | -------------------------------------------------------------------------- |
+| **Real-time first**        | WebSockets for all live interactions; HTTP only for initial loads          |
+| **Type-safe end-to-end**   | Shared Zod schemas from `packages/types` used in both API and UI           |
+| **Separation of concerns** | Self-contained feature modules in both API and frontend                    |
+| **Scalable by design**     | Redis pub/sub, mediasoup SFU, BullMQ workers — no single-point bottlenecks |
+| **Security by default**    | JWT + RBAC, rate limiting, helmet headers on every route                   |
+| **Open & extensible**      | Monorepo design allows teams to own a single module independently          |
 
 ---
 
@@ -129,6 +130,7 @@ duwitch/
 ```
 
 ### `turbo.json`
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
@@ -148,10 +150,11 @@ duwitch/
 ```
 
 ### `pnpm-workspace.yaml`
+
 ```yaml
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
 ```
 
 ---
@@ -286,12 +289,12 @@ apps/web/
 
 ### State Management Strategy
 
-| State Type | Tool | Example |
-|---|---|---|
-| Global UI / Ephemeral | Zustand | theme, modal open, room participants |
-| Server data / cached | TanStack Query | user feed, project list, news articles |
-| Real-time / live | Zustand + Socket events | room chat, presence, incoming calls |
-| URL-derived | Next.js `useSearchParams` | filters, search query, pagination |
+| State Type            | Tool                      | Example                                |
+| --------------------- | ------------------------- | -------------------------------------- |
+| Global UI / Ephemeral | Zustand                   | theme, modal open, room participants   |
+| Server data / cached  | TanStack Query            | user feed, project list, news articles |
+| Real-time / live      | Zustand + Socket events   | room chat, presence, incoming calls    |
+| URL-derived           | Next.js `useSearchParams` | filters, search query, pagination      |
 
 ### Routing Groups Rationale
 
@@ -384,51 +387,52 @@ apps/api/
 
 ### API Route Map
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `POST` | `/auth/register` | ❌ | Register with email + password |
-| `POST` | `/auth/login` | ❌ | Login, receive JWT pair |
-| `GET` | `/auth/github` | ❌ | GitHub OAuth redirect |
-| `GET` | `/auth/google` | ❌ | Google OAuth redirect |
-| `POST` | `/auth/refresh` | ❌ | Refresh access token |
-| `GET` | `/users/:username` | ✅ | Get dev profile |
-| `PATCH` | `/users/me` | ✅ | Update own profile |
-| `GET` | `/projects` | ✅ | List projects (paginated, filtered) |
-| `POST` | `/projects` | ✅ | Create project |
-| `GET` | `/projects/:id` | ✅ | Project detail |
-| `POST` | `/projects/:id/proposals` | ✅ | Submit proposal/suggestion |
-| `GET` | `/rooms` | ✅ | List active rooms |
-| `POST` | `/rooms` | ✅ | Create room |
-| `GET` | `/rooms/:roomId` | ✅ | Room detail |
-| `GET` | `/news` | ❌ | News feed (public) |
-| `POST` | `/news/articles` | ✅ | Submit community article |
-| `GET` | `/news/:slug` | ❌ | Single article view |
-| `GET` | `/search` | ✅ | Universal search (devs, projects, news) |
-| `GET` | `/notifications` | ✅ | Notification history |
+| Method  | Path                      | Auth | Description                             |
+| ------- | ------------------------- | ---- | --------------------------------------- |
+| `POST`  | `/auth/register`          | ❌   | Register with email + password          |
+| `POST`  | `/auth/login`             | ❌   | Login, receive JWT pair                 |
+| `GET`   | `/auth/github`            | ❌   | GitHub OAuth redirect                   |
+| `GET`   | `/auth/google`            | ❌   | Google OAuth redirect                   |
+| `POST`  | `/auth/refresh`           | ❌   | Refresh access token                    |
+| `GET`   | `/users/:username`        | ✅   | Get dev profile                         |
+| `PATCH` | `/users/me`               | ✅   | Update own profile                      |
+| `GET`   | `/projects`               | ✅   | List projects (paginated, filtered)     |
+| `POST`  | `/projects`               | ✅   | Create project                          |
+| `GET`   | `/projects/:id`           | ✅   | Project detail                          |
+| `POST`  | `/projects/:id/proposals` | ✅   | Submit proposal/suggestion              |
+| `GET`   | `/rooms`                  | ✅   | List active rooms                       |
+| `POST`  | `/rooms`                  | ✅   | Create room                             |
+| `GET`   | `/rooms/:roomId`          | ✅   | Room detail                             |
+| `GET`   | `/news`                   | ❌   | News feed (public)                      |
+| `POST`  | `/news/articles`          | ✅   | Submit community article                |
+| `GET`   | `/news/:slug`             | ❌   | Single article view                     |
+| `GET`   | `/search`                 | ✅   | Universal search (devs, projects, news) |
+| `GET`   | `/notifications`          | ✅   | Notification history                    |
 
 ### WebSocket Events (Socket.io)
 
-| Namespace | Event | Direction | Purpose |
-|-----------|-------|-----------|---------|
-| `/rooms` | `join-room` | C→S | User enters a room |
-| `/rooms` | `leave-room` | C→S | User leaves a room |
-| `/rooms` | `presence-update` | S→C | Participant list changed |
-| `/rooms` | `chat-message` | C↔S | Room chat message |
-| `/rooms` | `rtp-capabilities` | S→C | mediasoup RTP caps |
-| `/rooms` | `create-transport` | C→S | Request WebRTC transport |
-| `/rooms` | `transport-params` | S→C | Return transport params |
-| `/rooms` | `produce` | C→S | Start producing media track |
-| `/rooms` | `new-producer` | S→C | Notify others of new producer |
-| `/rooms` | `consume` | C→S | Start consuming a track |
-| `/dm` | `message` | C↔S | Direct message |
-| `/dm` | `typing` | C↔S | Typing indicator |
-| `/notif` | `notification` | S→C | Push a notification bell |
+| Namespace | Event              | Direction | Purpose                       |
+| --------- | ------------------ | --------- | ----------------------------- |
+| `/rooms`  | `join-room`        | C→S       | User enters a room            |
+| `/rooms`  | `leave-room`       | C→S       | User leaves a room            |
+| `/rooms`  | `presence-update`  | S→C       | Participant list changed      |
+| `/rooms`  | `chat-message`     | C↔S       | Room chat message             |
+| `/rooms`  | `rtp-capabilities` | S→C       | mediasoup RTP caps            |
+| `/rooms`  | `create-transport` | C→S       | Request WebRTC transport      |
+| `/rooms`  | `transport-params` | S→C       | Return transport params       |
+| `/rooms`  | `produce`          | C→S       | Start producing media track   |
+| `/rooms`  | `new-producer`     | S→C       | Notify others of new producer |
+| `/rooms`  | `consume`          | C→S       | Start consuming a track       |
+| `/dm`     | `message`          | C↔S       | Direct message                |
+| `/dm`     | `typing`           | C↔S       | Typing indicator              |
+| `/notif`  | `notification`     | S→C       | Push a notification bell      |
 
 ---
 
 ## 6. Shared Packages — `packages/`
 
 ### `packages/types`
+
 ```
 packages/types/
 ├── src/
@@ -445,6 +449,7 @@ packages/types/
 All types are generated from **Zod schemas** — so both the API (validation) and web (form validation, typed responses) use the same single source of truth.
 
 ### `packages/ui`
+
 ```
 packages/ui/
 ├── src/
@@ -456,6 +461,7 @@ packages/ui/
 ```
 
 ### `packages/config`
+
 ```
 packages/config/
 ├── eslint/
@@ -472,8 +478,9 @@ packages/config/
 ## 7. Infrastructure — `infra/`
 
 ### `docker-compose.yml` (Local Dev)
+
 ```yaml
-version: "3.9"
+version: '3.9'
 services:
   postgres:
     image: postgres:16-alpine
@@ -481,30 +488,30 @@ services:
       POSTGRES_DB: duwitch
       POSTGRES_USER: duwitch
       POSTGRES_PASSWORD: secret
-    ports: ["5432:5432"]
-    volumes: ["pg_data:/var/lib/postgresql/data"]
+    ports: ['5432:5432']
+    volumes: ['pg_data:/var/lib/postgresql/data']
 
   redis:
     image: redis:7-alpine
-    ports: ["6379:6379"]
+    ports: ['6379:6379']
 
   mongo:
     image: mongo:7
-    ports: ["27017:27017"]
-    volumes: ["mongo_data:/data/db"]
+    ports: ['27017:27017']
+    volumes: ['mongo_data:/data/db']
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     environment:
       discovery.type: single-node
-      xpack.security.enabled: "false"
-    ports: ["9200:9200"]
+      xpack.security.enabled: 'false'
+    ports: ['9200:9200']
 
   coturn:
     image: coturn/coturn:latest
     ports:
-      - "3478:3478/udp"
-      - "3478:3478/tcp"
+      - '3478:3478/udp'
+      - '3478:3478/tcp'
 
 volumes:
   pg_data:
@@ -512,6 +519,7 @@ volumes:
 ```
 
 ### Kubernetes Structure (`infra/k8s/`)
+
 ```
 k8s/
 ├── namespaces.yaml
@@ -624,13 +632,13 @@ enum AvailStatus   { OPEN BUSY UNAVAILABLE }
 
 ### Redis — Cache, Sessions, Pub/Sub
 
-| Key Pattern | TTL | Purpose |
-|-------------|-----|---------|
-| `sess:{userId}` | 7d | Refresh token session |
-| `presence:{roomId}` | 30s | Live participant set (SADD) |
-| `room:sfu:{roomId}` | ∞ | mediasoup Router ID mapping |
-| `ratelimit:{ip}` | 60s | Rate limit sliding window |
-| `notif:queue:{userId}` | — | BullMQ notification queue |
+| Key Pattern            | TTL | Purpose                     |
+| ---------------------- | --- | --------------------------- |
+| `sess:{userId}`        | 7d  | Refresh token session       |
+| `presence:{roomId}`    | 30s | Live participant set (SADD) |
+| `room:sfu:{roomId}`    | ∞   | mediasoup Router ID mapping |
+| `ratelimit:{ip}`       | 60s | Rate limit sliding window   |
+| `notif:queue:{userId}` | —   | BullMQ notification queue   |
 
 ### Elasticsearch — Full-Text Search
 
@@ -672,6 +680,7 @@ Browser A (Producer)
 ```
 
 **Key mediasoup objects:**
+
 - **Worker** — 1 per CPU core, spawned at startup
 - **Router** — 1 per room; handles RTP routing between transports
 - **WebRtcTransport** — 1 send + 1 receive per participant
@@ -701,53 +710,54 @@ mediasoup PlainTransport
 ## 10. Feature Module Breakdown
 
 ### Feed (Home Timeline)
+
 - Aggregates: project updates, new live rooms, trending articles, followed dev activity
 - Pagination: cursor-based infinite scroll
 - Personalization: weighted by subscribed skills/tags + recency score
 
 ### Rooms (Discord-like)
 
-| Sub-feature | Implementation |
-|-------------|---------------|
-| Video/Audio | mediasoup SFU (VP8/VP9 + Opus) |
+| Sub-feature  | Implementation                                  |
+| ------------ | ----------------------------------------------- |
+| Video/Audio  | mediasoup SFU (VP8/VP9 + Opus)                  |
 | Screen Share | `getDisplayMedia()` → additional Producer track |
-| Code Share | Monaco Editor + Yjs CRDT sync over Socket.io |
-| Room Chat | Socket.io events → MongoDB persistence |
-| Role system | host / member / viewer (enforced server-side) |
-| Recording | mediasoup PlainTransport → FFmpeg → R2 |
-| Replay | HLS stream from R2 served via CDN |
+| Code Share   | Monaco Editor + Yjs CRDT sync over Socket.io    |
+| Room Chat    | Socket.io events → MongoDB persistence          |
+| Role system  | host / member / viewer (enforced server-side)   |
+| Recording    | mediasoup PlainTransport → FFmpeg → R2          |
+| Replay       | HLS stream from R2 served via CDN               |
 
 ### Projects Marketplace
 
-| Sub-feature | Implementation |
-|-------------|---------------|
-| Project listing | Postgres `projects` table + Elasticsearch |
-| Role openings | `RoleOpening` model with tech tag filtering |
-| Status board | Kanban columns via `/projects/:id/board` |
+| Sub-feature           | Implementation                                     |
+| --------------------- | -------------------------------------------------- |
+| Project listing       | Postgres `projects` table + Elasticsearch          |
+| Role openings         | `RoleOpening` model with tech tag filtering        |
+| Status board          | Kanban columns via `/projects/:id/board`           |
 | Proposals/Suggestions | Threaded `Proposal` model; real-time via Socket.io |
-| Dev-to-dev DM | `/dm` Socket.io namespace + Mongo message store |
+| Dev-to-dev DM         | `/dm` Socket.io namespace + Mongo message store    |
 
 ### News & Articles
 
-| Sub-feature | Implementation |
-|-------------|---------------|
-| RSS aggregation | BullMQ cron job every 15m → `scraper.ts` → Postgres + ES |
-| Community articles | Rich-text editor → POST `/news/articles` |
-| Tag subscriptions | `user_tag_subscriptions` join table; filtered feed |
-| Trending | View count + bookmark count compound sort |
-| Comments | Nested `Comment` model in Postgres |
-| Bookmarks | Many-to-many `article_bookmarks` table |
+| Sub-feature        | Implementation                                           |
+| ------------------ | -------------------------------------------------------- |
+| RSS aggregation    | BullMQ cron job every 15m → `scraper.ts` → Postgres + ES |
+| Community articles | Rich-text editor → POST `/news/articles`                 |
+| Tag subscriptions  | `user_tag_subscriptions` join table; filtered feed       |
+| Trending           | View count + bookmark count compound sort                |
+| Comments           | Nested `Comment` model in Postgres                       |
+| Bookmarks          | Many-to-many `article_bookmarks` table                   |
 
 ### Dev Profiles
 
-| Sub-feature | Implementation |
-|-------------|---------------|
-| GitHub OAuth | Passport.js GitHub strategy; syncs avatar + username |
-| Skill tags | Many-to-many `skills` join table |
-| Availability | Enum column `AvailStatus` (OPEN / BUSY / UNAVAILABLE) |
+| Sub-feature     | Implementation                                         |
+| --------------- | ------------------------------------------------------ |
+| GitHub OAuth    | Passport.js GitHub strategy; syncs avatar + username   |
+| Skill tags      | Many-to-many `skills` join table                       |
+| Availability    | Enum column `AvailStatus` (OPEN / BUSY / UNAVAILABLE)  |
 | XP / Reputation | Server-side event scoring (proposal accepted = +50 XP) |
-| Portfolio links | `portfolioLinks` JSON column |
-| Project history | Derived from `ProjectMember` join table |
+| Portfolio links | `portfolioLinks` JSON column                           |
+| Project history | Derived from `ProjectMember` join table                |
 
 ---
 
@@ -780,15 +790,15 @@ API     --> upsert User, issue JWT
 
 ### RBAC Roles
 
-| Role | Scope | Permissions |
-|------|-------|-------------|
-| `admin` | Platform | Full access, user management |
-| `user` | Platform | Create projects, join rooms, post articles |
-| `host` | Room | Kick participants, control recording |
-| `member` | Room | Produce media, send chat |
-| `viewer` | Room | Consume media only |
-| `owner` | Project | Edit/delete project, manage roles |
-| `contributor` | Project | Post proposals, update status |
+| Role          | Scope    | Permissions                                |
+| ------------- | -------- | ------------------------------------------ |
+| `admin`       | Platform | Full access, user management               |
+| `user`        | Platform | Create projects, join rooms, post articles |
+| `host`        | Room     | Kick participants, control recording       |
+| `member`      | Room     | Produce media, send chat                   |
+| `viewer`      | Room     | Consume media only                         |
+| `owner`       | Project  | Edit/delete project, manage roles          |
+| `contributor` | Project  | Post proposals, update status              |
 
 ---
 
@@ -834,14 +844,14 @@ notif.job.ts (worker)
 
 ### Notification Types
 
-| Trigger | In-App | Email |
-|---------|--------|-------|
-| Proposal accepted on your project | ✅ | ✅ |
-| New DM received | ✅ | ✅ (digest) |
-| Room you follow went live | ✅ | ❌ |
-| Your article was bookmarked | ✅ | ❌ |
-| XP rank milestone reached | ✅ | ❌ |
-| New dev joined your project | ✅ | ✅ |
+| Trigger                           | In-App | Email       |
+| --------------------------------- | ------ | ----------- |
+| Proposal accepted on your project | ✅     | ✅          |
+| New DM received                   | ✅     | ✅ (digest) |
+| Room you follow went live         | ✅     | ❌          |
+| Your article was bookmarked       | ✅     | ❌          |
+| XP rank milestone reached         | ✅     | ❌          |
+| New dev joined your project       | ✅     | ✅          |
 
 ---
 
@@ -881,18 +891,18 @@ feature/* --> PR --> CI passes --> staging (auto) --> prod (manual approve)
 
 ## 15. Security Considerations
 
-| Area | Measure |
-|------|---------|
-| Auth tokens | JWT RS256 signed; access token 15m, refresh 7d |
-| Transport | HTTPS + HSTS; WSS for WebSocket |
-| Input | Zod validation on every API endpoint |
-| Rate limiting | `@fastify/rate-limit` per IP + per user |
-| HTTP headers | `@fastify/helmet` (CSP, HSTS, X-Frame-Options) |
-| WebRTC media | DTLS-SRTP encryption on all mediasoup transports |
-| File uploads | Type + size limits; malware scan before R2 |
-| SQL safety | Prisma parameterized queries (zero raw SQL in app) |
-| XSS | React auto-escaping + DOMPurify on rich-text render |
-| CORS | Explicit allowlist; credentials only same-origin |
+| Area          | Measure                                             |
+| ------------- | --------------------------------------------------- |
+| Auth tokens   | JWT RS256 signed; access token 15m, refresh 7d      |
+| Transport     | HTTPS + HSTS; WSS for WebSocket                     |
+| Input         | Zod validation on every API endpoint                |
+| Rate limiting | `@fastify/rate-limit` per IP + per user             |
+| HTTP headers  | `@fastify/helmet` (CSP, HSTS, X-Frame-Options)      |
+| WebRTC media  | DTLS-SRTP encryption on all mediasoup transports    |
+| File uploads  | Type + size limits; malware scan before R2          |
+| SQL safety    | Prisma parameterized queries (zero raw SQL in app)  |
+| XSS           | React auto-escaping + DOMPurify on rich-text render |
+| CORS          | Explicit allowlist; credentials only same-origin    |
 
 ---
 
@@ -900,56 +910,57 @@ feature/* --> PR --> CI passes --> staging (auto) --> prod (manual approve)
 
 ### Frontend
 
-| Technology | Purpose |
-|-----------|---------|
-| Next.js 14 (App Router) | SSR/SSG, routing, edge API routes |
-| TypeScript | End-to-end type safety |
-| Tailwind CSS | Utility-first styling |
-| Zustand | Global ephemeral state |
-| TanStack Query | Server state, caching, mutations |
-| Socket.io-client | WebSocket connection |
-| mediasoup-client | WebRTC peer management |
-| Monaco Editor | In-room collaborative code editor |
-| Yjs | CRDT for conflict-free real-time editing |
-| shadcn/ui | Accessible base UI components |
+| Technology              | Purpose                                  |
+| ----------------------- | ---------------------------------------- |
+| Next.js 14 (App Router) | SSR/SSG, routing, edge API routes        |
+| TypeScript              | End-to-end type safety                   |
+| Tailwind CSS            | Utility-first styling                    |
+| Zustand                 | Global ephemeral state                   |
+| TanStack Query          | Server state, caching, mutations         |
+| Socket.io-client        | WebSocket connection                     |
+| mediasoup-client        | WebRTC peer management                   |
+| Monaco Editor           | In-room collaborative code editor        |
+| Yjs                     | CRDT for conflict-free real-time editing |
+| shadcn/ui               | Accessible base UI components            |
 
 ### Backend
 
-| Technology | Purpose |
-|-----------|---------|
-| Node.js 20+ | Runtime |
-| Fastify | High-performance HTTP server |
-| TypeScript | Type-safe server code |
-| Socket.io | WebSocket server (rooms, DM, notif) |
-| Prisma ORM | PostgreSQL schema + migrations |
-| Mongoose | MongoDB ODM (chat messages) |
-| mediasoup | SFU for WebRTC media routing |
-| BullMQ | Background job queues |
-| Passport.js | OAuth strategies |
-| Zod | Schema validation |
-| Pino | Structured JSON logging |
+| Technology  | Purpose                             |
+| ----------- | ----------------------------------- |
+| Node.js 20+ | Runtime                             |
+| Fastify     | High-performance HTTP server        |
+| TypeScript  | Type-safe server code               |
+| Socket.io   | WebSocket server (rooms, DM, notif) |
+| Prisma ORM  | PostgreSQL schema + migrations      |
+| Mongoose    | MongoDB ODM (chat messages)         |
+| mediasoup   | SFU for WebRTC media routing        |
+| BullMQ      | Background job queues               |
+| Passport.js | OAuth strategies                    |
+| Zod         | Schema validation                   |
+| Pino        | Structured JSON logging             |
 
 ### Data & Infrastructure
 
-| Technology | Purpose |
-|-----------|---------|
-| PostgreSQL 16 | Primary relational database |
-| MongoDB 7 | Chat messages, room event logs |
-| Redis 7 | Sessions, pub/sub, rate limiting, queues |
-| Elasticsearch 8 | Full-text search across all entities |
-| Cloudflare R2 | Media storage (recordings, avatars, uploads) |
-| coturn | STUN/TURN server for NAT traversal |
-| Docker | Containerization |
-| Kubernetes | Orchestration + auto-scaling |
-| GitHub Actions | CI/CD pipelines |
-| Turborepo | Monorepo build cache |
-| pnpm | Fast, space-efficient package manager |
+| Technology      | Purpose                                      |
+| --------------- | -------------------------------------------- |
+| PostgreSQL 16   | Primary relational database                  |
+| MongoDB 7       | Chat messages, room event logs               |
+| Redis 7         | Sessions, pub/sub, rate limiting, queues     |
+| Elasticsearch 8 | Full-text search across all entities         |
+| Cloudflare R2   | Media storage (recordings, avatars, uploads) |
+| coturn          | STUN/TURN server for NAT traversal           |
+| Docker          | Containerization                             |
+| Kubernetes      | Orchestration + auto-scaling                 |
+| GitHub Actions  | CI/CD pipelines                              |
+| Turborepo       | Monorepo build cache                         |
+| pnpm            | Fast, space-efficient package manager        |
 
 ---
 
 ## 17. Development Roadmap
 
 ### Phase 1 — Foundation (Weeks 1–4)
+
 - [ ] Monorepo scaffold (Turborepo + pnpm)
 - [ ] Database schemas + Prisma migrations
 - [ ] Auth system (email + GitHub OAuth)
@@ -958,6 +969,7 @@ feature/* --> PR --> CI passes --> staging (auto) --> prod (manual approve)
 - [ ] News RSS scraper (basic)
 
 ### Phase 2 — Core Features (Weeks 5–10)
+
 - [ ] Projects Marketplace (proposals, role openings, status board)
 - [ ] Direct Messaging (DM) system
 - [ ] Rooms (text-only first → then audio/video)
@@ -966,6 +978,7 @@ feature/* --> PR --> CI passes --> staging (auto) --> prod (manual approve)
 - [ ] News articles + community submission
 
 ### Phase 3 — Growth Features (Weeks 11–16)
+
 - [ ] Dev Profiles (XP, reputation, portfolio)
 - [ ] Full-text search (Elasticsearch)
 - [ ] Notification system (in-app + email)
@@ -974,6 +987,7 @@ feature/* --> PR --> CI passes --> staging (auto) --> prod (manual approve)
 - [ ] Tag subscriptions for news
 
 ### Phase 4 — Scale & Polish (Weeks 17–20)
+
 - [ ] Kubernetes production deployment
 - [ ] Performance monitoring (OpenTelemetry + Grafana)
 - [ ] Mobile-responsive refinement
@@ -986,6 +1000,7 @@ feature/* --> PR --> CI passes --> staging (auto) --> prod (manual approve)
 ## 18. Environment Variables Reference
 
 ### `apps/web/.env.local`
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001
 NEXT_PUBLIC_WS_URL=ws://localhost:3001
@@ -994,6 +1009,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 ### `apps/api/.env`
+
 ```env
 # Server
 PORT=3001
@@ -1062,5 +1078,5 @@ pnpm dev
 
 ---
 
-*Architecture version: 1.0 | April 2026*  
-*Duwitch — Build without boundaries.*
+_Architecture version: 1.0 | April 2026_  
+_Duwitch — Build without boundaries._

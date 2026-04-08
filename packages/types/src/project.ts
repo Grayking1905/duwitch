@@ -55,6 +55,8 @@ export const ProjectSchema = z.object({
 export type Project = z.infer<typeof ProjectSchema>
 
 export const CreateProjectInputSchema = ProjectSchema.pick({
-  title: true, description: true, techTags: true,
+  title: true,
+  description: true,
+  techTags: true,
 })
 export type CreateProjectInput = z.infer<typeof CreateProjectInputSchema>

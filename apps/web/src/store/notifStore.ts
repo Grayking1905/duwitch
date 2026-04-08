@@ -19,7 +19,7 @@ export const useNotifStore = create<NotifState>()(
         set(
           state => ({
             notifications: [notif, ...state.notifications].slice(0, 50),
-            unreadCount:   state.unreadCount + (notif.read ? 0 : 1),
+            unreadCount: state.unreadCount + (notif.read ? 0 : 1),
           }),
           false,
           'addNotification'
@@ -28,7 +28,7 @@ export const useNotifStore = create<NotifState>()(
         set(
           state => ({
             notifications: state.notifications.map(n => ({ ...n, read: true })),
-            unreadCount:   0,
+            unreadCount: 0,
           }),
           false,
           'markAllRead'

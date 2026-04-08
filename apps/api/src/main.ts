@@ -49,7 +49,10 @@ async function bootstrap(): Promise<void> {
   // Authenticate decorator — used as preHandler in route definitions
   app.decorate(
     'authenticate',
-    async function authenticate(request: Parameters<typeof app.authenticate>[0], reply: Parameters<typeof app.authenticate>[1]) {
+    async function authenticate(
+      request: Parameters<typeof app.authenticate>[0],
+      reply: Parameters<typeof app.authenticate>[1]
+    ) {
       try {
         await request.jwtVerify()
       } catch {

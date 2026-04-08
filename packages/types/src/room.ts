@@ -35,7 +35,10 @@ export const RoomSchema = z.object({
 export type Room = z.infer<typeof RoomSchema>
 
 export const CreateRoomInputSchema = RoomSchema.pick({
-  name: true, description: true, maxMembers: true, tags: true,
+  name: true,
+  description: true,
+  maxMembers: true,
+  tags: true,
 })
 export type CreateRoomInput = z.infer<typeof CreateRoomInputSchema>
 
@@ -63,7 +66,12 @@ export type ChatMessage = z.infer<typeof ChatMessageSchema>
 export const WsRoomEventSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('join-room'), roomId: z.string() }),
   z.object({ type: z.literal('leave-room'), roomId: z.string() }),
-  z.object({ type: z.literal('chat-message'), roomId: z.string(), content: z.string(), msgType: ChatMessageTypeSchema }),
+  z.object({
+    type: z.literal('chat-message'),
+    roomId: z.string(),
+    content: z.string(),
+    msgType: ChatMessageTypeSchema,
+  }),
   z.object({ type: z.literal('presence-update'), participants: z.array(ParticipantSchema) }),
 ])
 export type WsRoomEvent = z.infer<typeof WsRoomEventSchema>

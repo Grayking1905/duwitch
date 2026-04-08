@@ -1,16 +1,16 @@
 import type { FastifyInstance } from 'fastify'
 import { prisma } from '../../db/postgres/client'
 
-type RoomParams  = { roomId: string }
+type RoomParams = { roomId: string }
 type CreateRoomBody = { name: string; description?: string; maxMembers?: number; tags?: string[] }
 
 export async function roomsRoutes(app: FastifyInstance) {
   // GET /rooms — list live rooms
   app.get('/', async (_req, reply) => {
     const rooms = await prisma.room.findMany({
-      where:    { isLive: true },
-      orderBy:  { createdAt: 'desc' },
-      take:     50,
+      where: { isLive: true },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
     })
     return reply.send({ rooms })
   })
@@ -47,7 +47,9 @@ export async function roomsRoutes(app: FastifyInstance) {
       const room = await prisma.room.findUnique({ where: { id: roomId } })
       if (!room) return reply.code(404).send({ code: 'NOT_FOUND', message: 'Room not found' })
       if (room.hostId !== userId) {
-        return reply.code(403).send({ code: 'FORBIDDEN', message: 'Only the host can end the room' })
+        return reply
+          .code(403)
+          .send({ code: 'FORBIDDEN', message: 'Only the host can end the room' })
       }
       await prisma.room.update({ where: { id: roomId }, data: { isLive: false } })
       return reply.send({ message: 'Room ended' })

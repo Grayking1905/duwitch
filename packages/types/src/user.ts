@@ -16,7 +16,11 @@ export type Skill = z.infer<typeof SkillSchema>
 
 export const UserSchema = z.object({
   id: z.string(),
-  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_-]+$/),
+  username: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_-]+$/),
   email: z.string().email(),
   avatar: z.string().url().nullable().optional(),
   bio: z.string().max(500).nullable().optional(),
@@ -41,7 +45,11 @@ export type DevProfile = z.infer<typeof DevProfileSchema>
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export const RegisterInputSchema = z.object({
-  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_-]+$/),
+  username: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_-]+$/),
   email: z.string().email(),
   password: z.string().min(8).max(72),
 })

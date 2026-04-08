@@ -21,19 +21,32 @@ interface RoomState {
 export const useRoomStore = create<RoomState>()(
   devtools(
     set => ({
-      roomId:          null,
-      participants:    [],
-      isMuted:         false,
-      isCameraOff:     false,
+      roomId: null,
+      participants: [],
+      isMuted: false,
+      isCameraOff: false,
       isSharingScreen: false,
-      isRecording:     false,
-      setRoomId:          id           => set({ roomId: id },                          false, 'setRoomId'),
-      setParticipants:    participants  => set({ participants },                         false, 'setParticipants'),
-      toggleMute:         ()           => set(s => ({ isMuted: !s.isMuted }),           false, 'toggleMute'),
-      toggleCamera:       ()           => set(s => ({ isCameraOff: !s.isCameraOff }),   false, 'toggleCamera'),
-      toggleScreenShare:  ()           => set(s => ({ isSharingScreen: !s.isSharingScreen }), false, 'toggleScreenShare'),
-      toggleRecording:    ()           => set(s => ({ isRecording: !s.isRecording }),   false, 'toggleRecording'),
-      leaveRoom:          ()           => set({ roomId: null, participants: [], isMuted: false, isCameraOff: false, isSharingScreen: false, isRecording: false }, false, 'leaveRoom'),
+      isRecording: false,
+      setRoomId: id => set({ roomId: id }, false, 'setRoomId'),
+      setParticipants: participants => set({ participants }, false, 'setParticipants'),
+      toggleMute: () => set(s => ({ isMuted: !s.isMuted }), false, 'toggleMute'),
+      toggleCamera: () => set(s => ({ isCameraOff: !s.isCameraOff }), false, 'toggleCamera'),
+      toggleScreenShare: () =>
+        set(s => ({ isSharingScreen: !s.isSharingScreen }), false, 'toggleScreenShare'),
+      toggleRecording: () => set(s => ({ isRecording: !s.isRecording }), false, 'toggleRecording'),
+      leaveRoom: () =>
+        set(
+          {
+            roomId: null,
+            participants: [],
+            isMuted: false,
+            isCameraOff: false,
+            isSharingScreen: false,
+            isRecording: false,
+          },
+          false,
+          'leaveRoom'
+        ),
     }),
     { name: 'RoomStore' }
   )

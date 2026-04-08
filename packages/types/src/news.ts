@@ -10,13 +10,13 @@ export type ArticleSource = z.infer<typeof ArticleSourceSchema>
 type CommentType = z.ZodObject<any>
 
 export const CommentSchema: CommentType = z.object({
-  id:       z.string(),
+  id: z.string(),
   articleId: z.string(),
-  authorId:  z.string(),
-  author:    UserSchema.pick({ id: true, username: true, avatar: true }).optional(),
-  content:   z.string().min(1).max(2000),
-  parentId:  z.string().nullable().optional(),
-  replies:   z.array(z.lazy(() => CommentSchema)).optional(),
+  authorId: z.string(),
+  author: UserSchema.pick({ id: true, username: true, avatar: true }).optional(),
+  content: z.string().min(1).max(2000),
+  parentId: z.string().nullable().optional(),
+  replies: z.array(z.lazy(() => CommentSchema)).optional(),
   createdAt: z.string().datetime(),
 })
 export type Comment = {
@@ -29,7 +29,6 @@ export type Comment = {
   replies?: Comment[]
   createdAt: string
 }
-
 
 export const ArticleSchema = z.object({
   id: z.string(),
@@ -53,7 +52,9 @@ export const ArticleSchema = z.object({
 export type Article = z.infer<typeof ArticleSchema>
 
 export const CreateArticleInputSchema = ArticleSchema.pick({
-  title: true, content: true, tags: true,
+  title: true,
+  content: true,
+  tags: true,
 }).extend({
   content: z.string().min(100),
 })

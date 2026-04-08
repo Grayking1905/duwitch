@@ -6,7 +6,7 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          50:  'hsl(220 100% 97%)',
+          50: 'hsl(220 100% 97%)',
           100: 'hsl(220 95% 92%)',
           200: 'hsl(220 90% 83%)',
           300: 'hsl(220 84% 72%)',
@@ -19,7 +19,7 @@ module.exports = {
           950: 'hsl(220 88% 10%)',
         },
         surface: {
-          50:  'hsl(222 24% 98%)',
+          50: 'hsl(222 24% 98%)',
           100: 'hsl(222 20% 94%)',
           200: 'hsl(222 18% 87%)',
           700: 'hsl(222 22% 20%)',
@@ -39,18 +39,21 @@ module.exports = {
         '2xl': '1.25rem',
       },
       animation: {
-        'fade-in':      'fadeIn 0.2s ease-out',
-        'slide-up':     'slideUp 0.3s ease-out',
-        'pulse-slow':   'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'spin-slow':    'spin 3s linear infinite',
+        'fade-in': 'fadeIn 0.2s ease-out',
+        'slide-up': 'slideUp 0.3s ease-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'spin-slow': 'spin 3s linear infinite',
       },
       keyframes: {
-        fadeIn:  { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-        slideUp: { '0%': { transform: 'translateY(8px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+        slideUp: {
+          '0%': { transform: 'translateY(8px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
       },
       boxShadow: {
-        glow:     '0 0 20px hsl(220 72% 50% / 0.3)',
-        'glow-sm':'0 0 10px hsl(220 72% 50% / 0.2)',
+        glow: '0 0 20px hsl(220 72% 50% / 0.3)',
+        'glow-sm': '0 0 10px hsl(220 72% 50% / 0.2)',
       },
     },
   },
