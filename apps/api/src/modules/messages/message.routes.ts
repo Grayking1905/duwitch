@@ -23,7 +23,26 @@ export async function messagesRoutes(app: FastifyInstance) {
     '/:conversationId',
     { preHandler: [app.authenticate] },
     async (req, reply) => {
+      const userId = req.user.sub
       const { conversationId } = req.params
+
+      // 🛡️ Sentinel: Fix BOLA vulnerability by verifying user is a participant
+      const participant = await prisma.conversationParticipant.findUnique({
+        where: {
+          conversationId_userId: {
+            conversationId,
+            userId,
+          },
+        },
+      })
+
+      if (!participant) {
+        return reply.code(403).send({
+          code: 'FORBIDDEN',
+          message: 'You are not a participant of this conversation',
+        })
+      }
+
       const messages = await prisma.directMessage.findMany({
         where: { conversationId },
         include: { sender: { select: { id: true, username: true, avatar: true } } },
