@@ -1,10 +1,9 @@
 import type { FastifyInstance } from 'fastify'
 import { prisma } from '../../db/postgres/client'
-import type { ProjectStatus } from '@duwitch/types'
+import { CreateProjectInputSchema, ProposalSchema, type ProjectStatus } from '@duwitch/types'
 
 type ProjectsQuery = { status?: string; tag?: string; page?: string; limit?: string }
 type ProjectParams = { id: string }
-type ProposalBody = { content: string; roleId?: string }
 
 export async function projectsRoutes(app: FastifyInstance) {
   // GET /projects — list with filters
@@ -38,7 +37,7 @@ export async function projectsRoutes(app: FastifyInstance) {
   // POST /projects — create
   app.post('/', { preHandler: [app.authenticate] }, async (req, reply) => {
     const userId = req.user.sub
-    const body = req.body as { title: string; description: string; techTags?: string[] }
+    const body = CreateProjectInputSchema.parse(req.body)
     const project = await prisma.project.create({
       data: {
         title: body.title,
@@ -69,15 +68,32 @@ export async function projectsRoutes(app: FastifyInstance) {
   })
 
   // POST /projects/:id/proposals
-  app.post<{ Params: ProjectParams; Body: ProposalBody }>(
+  app.post<{ Params: ProjectParams }>(
     '/:id/proposals',
     { preHandler: [app.authenticate] },
     async (req, reply) => {
       const userId = req.user.sub
-      const { id } = req.params
-      const { content, roleId } = req.body
+      const { id: projectId } = req.params
+      const { content, roleId } = ProposalSchema.pick({ content: true, roleId: true }).parse(
+        req.body
+      )
+
+      // 🛡️ Sentinel: Verify that the role belongs to the project to prevent cross-resource IDOR
+      if (roleId) {
+        const role = await prisma.roleOpening.findFirst({
+          where: { id: roleId, projectId },
+        })
+
+        if (!role) {
+          return reply.code(400).send({
+            code: 'BAD_REQUEST',
+            message: 'The specified role does not exist or does not belong to this project',
+          })
+        }
+      }
+
       const proposal = await prisma.proposal.create({
-        data: { projectId: id, authorId: userId, content, roleId },
+        data: { projectId, authorId: userId, content, roleId },
         include: { author: { select: { id: true, username: true, avatar: true } } },
       })
       return reply.code(201).send(proposal)
