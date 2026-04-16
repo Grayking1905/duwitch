@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { prisma } from '../../db/postgres/client'
-import type { ProjectStatus } from '@duwitch/types'
+import { type ProjectStatus, CreateProjectInputSchema } from '@duwitch/types'
 
 type ProjectsQuery = { status?: string; tag?: string; page?: string; limit?: string }
 type ProjectParams = { id: string }
@@ -38,7 +38,7 @@ export async function projectsRoutes(app: FastifyInstance) {
   // POST /projects — create
   app.post('/', { preHandler: [app.authenticate] }, async (req, reply) => {
     const userId = req.user.sub
-    const body = req.body as { title: string; description: string; techTags?: string[] }
+    const body = CreateProjectInputSchema.parse(req.body)
     const project = await prisma.project.create({
       data: {
         title: body.title,
@@ -76,6 +76,22 @@ export async function projectsRoutes(app: FastifyInstance) {
       const userId = req.user.sub
       const { id } = req.params
       const { content, roleId } = req.body
+
+      // 🛡️ Sentinel: Verify that the role belongs to the project to prevent IDOR
+      if (roleId) {
+        const role = await prisma.roleOpening.findUnique({
+          where: { id: roleId },
+          select: { projectId: true },
+        })
+
+        if (!role || role.projectId !== id) {
+          return reply.code(400).send({
+            code: 'INVALID_ROLE',
+            message: 'The specified role does not belong to this project',
+          })
+        }
+      }
+
       const proposal = await prisma.proposal.create({
         data: { projectId: id, authorId: userId, content, roleId },
         include: { author: { select: { id: true, username: true, avatar: true } } },
