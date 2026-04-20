@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { prisma } from '../../db/postgres/client'
+import { UpdateUserInputSchema } from '@duwitch/types'
 
 export async function usersRoutes(app: FastifyInstance) {
   // GET /users/:username — public dev profile
@@ -28,13 +29,8 @@ export async function usersRoutes(app: FastifyInstance) {
   // PATCH /users/me — update own profile (auth required)
   app.patch('/me', { preHandler: [app.authenticate] }, async (req, reply) => {
     const userId = req.user.sub
-    const body = req.body as {
-      bio?: string
-      avatar?: string
-      githubUrl?: string
-      portfolioLinks?: string[]
-      availability?: 'OPEN' | 'BUSY' | 'UNAVAILABLE'
-    }
+    const body = UpdateUserInputSchema.parse(req.body)
+
     const updated = await prisma.user.update({
       where: { id: userId },
       data: {
