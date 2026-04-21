@@ -40,7 +40,7 @@ export const ArticleSchema = z.object({
   externalUrl: z.string().url().nullable().optional(),
   authorId: z.string().nullable().optional(),
   author: UserSchema.pick({ id: true, username: true, avatar: true }).nullable().optional(),
-  tags: z.array(z.string()),
+  tags: z.array(z.string()).default([]),
   views: z.number().int().default(0),
   bookmarkCount: z.number().int().default(0),
   commentCount: z.number().int().default(0),
