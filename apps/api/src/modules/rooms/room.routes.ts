@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify'
 import { prisma } from '../../db/postgres/client'
+import { CreateRoomInputSchema } from '@duwitch/types'
 
 type RoomParams = { roomId: string }
-type CreateRoomBody = { name: string; description?: string; maxMembers?: number; tags?: string[] }
 
 export async function roomsRoutes(app: FastifyInstance) {
   // GET /rooms — list live rooms
@@ -16,14 +16,21 @@ export async function roomsRoutes(app: FastifyInstance) {
   })
 
   // POST /rooms — create
-  app.post<{ Body: CreateRoomBody }>(
+  app.post(
     '/',
     { preHandler: [app.authenticate] },
     async (req, reply) => {
       const userId = req.user.sub
-      const { name, description, maxMembers = 50, tags = [] } = req.body
+      const body = CreateRoomInputSchema.parse(req.body)
       const room = await prisma.room.create({
-        data: { name, description, hostId: userId, maxMembers, tags, isLive: true },
+        data: {
+          name: body.name,
+          description: body.description,
+          hostId: userId,
+          maxMembers: body.maxMembers ?? 50,
+          tags: body.tags ?? [],
+          isLive: true,
+        },
       })
       return reply.code(201).send(room)
     }
