@@ -1,14 +1,22 @@
+import type { FastifyInstance } from 'fastify'
 import type { Server, Socket } from 'socket.io'
 
-export function initWebSocket(io: Server) {
+export function initWebSocket(io: Server, app: FastifyInstance) {
   // ── Auth middleware ───────────────────────────────────────────────────
-  io.use((socket, next) => {
-    const token = socket.handshake.auth.token as string | undefined
-    if (!token) return next(new Error('UNAUTHORIZED'))
-    // TODO: verify JWT and attach socket.data.userId
-    // const payload = verifyToken(token)
-    // socket.data.userId = payload.sub
-    next()
+  io.use(async (socket, next) => {
+    const token = socket.handshake.auth['token'] as string | undefined
+
+    if (!token) {
+      return next(new Error('UNAUTHORIZED'))
+    }
+
+    try {
+      const payload = await app.jwt.verify<{ sub: string }>(token)
+      socket.data.userId = payload.sub
+      next()
+    } catch {
+      next(new Error('INVALID_TOKEN'))
+    }
   })
 
   // ── /rooms namespace ─────────────────────────────────────────────────
