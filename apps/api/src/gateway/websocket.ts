@@ -1,14 +1,20 @@
+import type { FastifyInstance } from 'fastify'
 import type { Server, Socket } from 'socket.io'
+import { prisma } from '../db/postgres/client'
 
-export function initWebSocket(io: Server) {
+export function initWebSocket(io: Server, app: FastifyInstance) {
   // ── Auth middleware ───────────────────────────────────────────────────
-  io.use((socket, next) => {
-    const token = socket.handshake.auth.token as string | undefined
+  io.use(async (socket, next) => {
+    const token = socket.handshake.auth['token'] as string | undefined
     if (!token) return next(new Error('UNAUTHORIZED'))
-    // TODO: verify JWT and attach socket.data.userId
-    // const payload = verifyToken(token)
-    // socket.data.userId = payload.sub
-    next()
+
+    try {
+      const payload = await app.jwt.verify<{ sub: string }>(token)
+      socket.data.userId = payload.sub
+      next()
+    } catch {
+      next(new Error('INVALID_TOKEN'))
+    }
   })
 
   // ── /rooms namespace ─────────────────────────────────────────────────
@@ -40,7 +46,30 @@ export function initWebSocket(io: Server) {
   // ── /dm namespace ────────────────────────────────────────────────────
   const dmNs = io.of('/dm')
   dmNs.on('connection', (socket: Socket) => {
+    socket.on('join-conversation', async (conversationId: string) => {
+      const userId = socket.data.userId as string
+      // 🛡️ Sentinel: Verify user is a participant of the conversation (BOLA protection)
+      const participant = await prisma.conversationParticipant.findUnique({
+        where: {
+          conversationId_userId: {
+            conversationId,
+            userId,
+          },
+        },
+      })
+
+      if (!participant) {
+        socket.emit('error', { code: 'FORBIDDEN', message: 'Not a participant' })
+        return
+      }
+
+      await socket.join(conversationId)
+    })
+
     socket.on('message', (payload: { conversationId: string; content: string }) => {
+      // 🛡️ Sentinel: Ensure the user has actually joined the room (is a participant)
+      if (!socket.rooms.has(payload.conversationId)) return
+
       dmNs.to(payload.conversationId).emit('message', {
         ...payload,
         senderId: socket.data.userId as string,
@@ -49,6 +78,7 @@ export function initWebSocket(io: Server) {
     })
 
     socket.on('typing', (payload: { conversationId: string }) => {
+      if (!socket.rooms.has(payload.conversationId)) return
       socket.to(payload.conversationId).emit('typing', { userId: socket.data.userId as string })
     })
   })
