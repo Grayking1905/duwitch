@@ -2,3 +2,8 @@
 **Vulnerability:** A Broken Object Level Authorization (BOLA) vulnerability was found in the `GET /messages/:conversationId` endpoint. Any authenticated user could access the message history of any conversation by providing its `conversationId`, even if they were not a participant.
 **Learning:** The route only used the `authenticate` middleware, which ensures the user is logged in but doesn't verify if they have permission to access the specific resource requested.
 **Prevention:** Always verify ownership or participation when accessing resources that are not public. Use composite unique constraints in Prisma (like `conversationId_userId`) to efficiently check for participation or access rights.
+
+## 2026-04-15 - WebSocket Authentication Bypass and BOLA in DMs
+**Vulnerability:** The WebSocket implementation accepted any connection with a token without verifying it. Furthermore, it lacked authorization checks for joining and messaging in the `/dm` (direct message) namespace, allowing any authenticated user to join any conversation room and broadcast messages to it.
+**Learning:** WebSocket middleware in Socket.io must be applied to each namespace individually. Authentication in the default namespace does not automatically protect sub-namespaces. Additionally, authentication (knowing who the user is) must be followed by authorization (verifying if they are allowed to access the specific resource).
+**Prevention:** Always use `namespace.use()` to apply authentication middleware to all WebSocket namespaces. Implement BOLA checks in event handlers (e.g., `join-conversation`, `message`) to verify resource participation before performing actions. Use real JWT verification (`app.jwt.verify`) instead of trusting token presence.
