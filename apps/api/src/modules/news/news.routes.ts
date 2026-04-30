@@ -1,9 +1,9 @@
 import type { FastifyInstance } from 'fastify'
 import { prisma } from '../../db/postgres/client'
+import { CreateArticleInputSchema } from '@duwitch/types'
 
 type NewsQuery = { tag?: string; page?: string; limit?: string }
 type SlugParams = { slug: string }
-type ArticleBody = { title: string; content: string; tags?: string[] }
 
 export async function newsRoutes(app: FastifyInstance) {
   // GET /news — paginated article feed
@@ -74,12 +74,12 @@ export async function newsRoutes(app: FastifyInstance) {
   })
 
   // POST /news/articles — community submission
-  app.post<{ Body: ArticleBody }>(
+  app.post(
     '/articles',
     { preHandler: [app.authenticate] },
     async (req, reply) => {
       const userId = req.user.sub
-      const { title, content, tags = [] } = req.body
+      const { title, content, tags = [] } = CreateArticleInputSchema.parse(req.body)
       const slug =
         title
           .toLowerCase()

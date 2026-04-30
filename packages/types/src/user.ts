@@ -66,3 +66,12 @@ export const AuthTokensSchema = z.object({
   expiresIn: z.number(),
 })
 export type AuthTokens = z.infer<typeof AuthTokensSchema>
+
+export const UpdateUserInputSchema = UserSchema.pick({
+  bio: true,
+  avatar: true,
+  githubUrl: true,
+  portfolioLinks: true,
+  availability: true,
+}).partial()
+export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>
