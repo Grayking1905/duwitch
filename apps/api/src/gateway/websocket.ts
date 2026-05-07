@@ -1,20 +1,33 @@
+import type { FastifyInstance } from 'fastify'
 import type { Server, Socket } from 'socket.io'
+import { prisma } from '../db/postgres/client'
 
-export function initWebSocket(io: Server) {
+export function initWebSocket(io: Server, app: FastifyInstance) {
   // ── Auth middleware ───────────────────────────────────────────────────
-  io.use((socket, next) => {
-    const token = socket.handshake.auth.token as string | undefined
+  const authMiddleware = (socket: Socket, next: (err?: Error) => void) => {
+    const token = socket.handshake.auth['token'] as string | undefined
     if (!token) return next(new Error('UNAUTHORIZED'))
-    // TODO: verify JWT and attach socket.data.userId
-    // const payload = verifyToken(token)
-    // socket.data.userId = payload.sub
-    next()
-  })
+
+    try {
+      const payload = app.jwt.verify<{ sub: string }>(token)
+      socket.data.userId = payload.sub
+      next()
+    } catch {
+      next(new Error('UNAUTHORIZED'))
+    }
+  }
+
+  io.use(authMiddleware)
 
   // ── /rooms namespace ─────────────────────────────────────────────────
   const roomsNs = io.of('/rooms')
+  roomsNs.use(authMiddleware)
   roomsNs.on('connection', (socket: Socket) => {
     socket.on('join-room', async (roomId: string) => {
+      // 🛡️ Sentinel: Verify room exists and is live before joining
+      const room = await prisma.room.findFirst({ where: { id: roomId, isLive: true } })
+      if (!room) return
+
       await socket.join(roomId)
       socket.to(roomId).emit('presence-update', { userId: socket.data.userId, action: 'joined' })
     })
@@ -24,7 +37,14 @@ export function initWebSocket(io: Server) {
       socket.to(roomId).emit('presence-update', { userId: socket.data.userId, action: 'left' })
     })
 
-    socket.on('chat-message', (payload: { roomId: string; content: string; type: string }) => {
+    socket.on('chat-message', async (payload: { roomId: string; content: string; type: string }) => {
+      // 🛡️ Sentinel: Verify sender is actually in the room (BOLA)
+      if (!socket.rooms.has(payload.roomId)) return
+
+      // 🛡️ Sentinel: Verify room is still live
+      const room = await prisma.room.findFirst({ where: { id: payload.roomId, isLive: true } })
+      if (!room) return
+
       roomsNs.to(payload.roomId).emit('chat-message', {
         ...payload,
         authorId: socket.data.userId as string,
@@ -39,8 +59,24 @@ export function initWebSocket(io: Server) {
 
   // ── /dm namespace ────────────────────────────────────────────────────
   const dmNs = io.of('/dm')
+  dmNs.use(authMiddleware)
   dmNs.on('connection', (socket: Socket) => {
+    socket.on('join-conversation', async (conversationId: string) => {
+      const userId = socket.data.userId as string
+      // 🛡️ Sentinel: Verify user is a participant of the conversation (BOLA)
+      const isParticipant = await prisma.conversationParticipant.findUnique({
+        where: { conversationId_userId: { conversationId, userId } },
+      })
+
+      if (isParticipant) {
+        await socket.join(conversationId)
+      }
+    })
+
     socket.on('message', (payload: { conversationId: string; content: string }) => {
+      // 🛡️ Sentinel: Verify sender is in the conversation room
+      if (!socket.rooms.has(payload.conversationId)) return
+
       dmNs.to(payload.conversationId).emit('message', {
         ...payload,
         senderId: socket.data.userId as string,
@@ -49,12 +85,16 @@ export function initWebSocket(io: Server) {
     })
 
     socket.on('typing', (payload: { conversationId: string }) => {
+      // 🛡️ Sentinel: Verify user is in the conversation room
+      if (!socket.rooms.has(payload.conversationId)) return
+
       socket.to(payload.conversationId).emit('typing', { userId: socket.data.userId as string })
     })
   })
 
   // ── /notif namespace ─────────────────────────────────────────────────
   const notifNs = io.of('/notif')
+  notifNs.use(authMiddleware)
   notifNs.on('connection', (socket: Socket) => {
     // Join personal room so server can push to specific user
     const userId = socket.data.userId as string | undefined
