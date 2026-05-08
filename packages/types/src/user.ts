@@ -34,6 +34,15 @@ export const UserSchema = z.object({
 })
 export type User = z.infer<typeof UserSchema>
 
+export const UpdateUserInputSchema = UserSchema.pick({
+  bio: true,
+  avatar: true,
+  githubUrl: true,
+  portfolioLinks: true,
+  availability: true,
+}).partial()
+export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>
+
 export const DevProfileSchema = UserSchema.extend({
   projectCount: z.number().int().default(0),
   articleCount: z.number().int().default(0),
