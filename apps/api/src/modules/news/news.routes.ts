@@ -79,7 +79,7 @@ export async function newsRoutes(app: FastifyInstance) {
     { preHandler: [app.authenticate] },
     async (req, reply) => {
       const userId = req.user.sub
-      const { title, content, tags = [] } = CreateArticleInputSchema.parse(req.body)
+      const body = CreateArticleInputSchema.parse(req.body)
       const slug =
         body.title
           .toLowerCase()

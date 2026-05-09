@@ -21,14 +21,14 @@ export async function roomsRoutes(app: FastifyInstance) {
     { preHandler: [app.authenticate] },
     async (req, reply) => {
       const userId = req.user.sub
-      const { name, description, maxMembers, tags } = CreateRoomInputSchema.parse(req.body)
+      const body = CreateRoomInputSchema.parse(req.body)
       const room = await prisma.room.create({
         data: {
-          name,
-          description,
+          name: body.name,
+          description: body.description,
           hostId: userId,
-          maxMembers: maxMembers ?? 50,
-          tags: tags ?? [],
+          maxMembers: body.maxMembers ?? 50,
+          tags: body.tags ?? [],
           isLive: true,
         },
       })

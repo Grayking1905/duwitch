@@ -1,4 +1,5 @@
 import Fastify from 'fastify'
+import { z } from 'zod'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import rateLimit from '@fastify/rate-limit'
@@ -60,6 +61,16 @@ async function bootstrap(): Promise<void> {
       }
     }
   )
+
+  // ── Error Handling ────────────────────────────────────────────────
+  app.setErrorHandler((error, _req, reply) => {
+    if (error instanceof z.ZodError) {
+      return reply.code(400).send({ code: 'VALIDATION_ERROR', details: error.errors })
+    }
+    if (error.statusCode) return reply.send(error)
+    app.log.error(error)
+    reply.code(500).send({ code: 'INTERNAL_SERVER_ERROR', message: 'Something went wrong' })
+  })
 
   // ── Routes ────────────────────────────────────────────────────────
   await registerRoutes(app)
