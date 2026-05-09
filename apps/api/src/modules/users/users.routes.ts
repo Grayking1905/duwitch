@@ -30,15 +30,10 @@ export async function usersRoutes(app: FastifyInstance) {
   app.patch('/me', { preHandler: [app.authenticate] }, async (req, reply) => {
     const userId = req.user.sub
     const body = UpdateUserInputSchema.parse(req.body)
+
     const updated = await prisma.user.update({
       where: { id: userId },
-      data: {
-        bio: body.bio,
-        avatar: body.avatar,
-        githubUrl: body.githubUrl,
-        portfolioLinks: body.portfolioLinks,
-        availability: body.availability,
-      },
+      data: body,
       select: {
         id: true,
         username: true,

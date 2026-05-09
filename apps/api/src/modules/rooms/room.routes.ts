@@ -29,7 +29,7 @@ export async function roomsRoutes(app: FastifyInstance) {
           hostId: userId,
           maxMembers: body.maxMembers ?? 50,
           tags: body.tags ?? [],
-          isLive: true
+          isLive: true,
         },
       })
       return reply.code(201).send(room)

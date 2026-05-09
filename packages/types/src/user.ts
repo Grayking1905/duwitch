@@ -34,14 +34,6 @@ export const UserSchema = z.object({
 })
 export type User = z.infer<typeof UserSchema>
 
-export const DevProfileSchema = UserSchema.extend({
-  projectCount: z.number().int().default(0),
-  articleCount: z.number().int().default(0),
-  reputation: z.number().int().default(0),
-  isFollowing: z.boolean().optional(),
-})
-export type DevProfile = z.infer<typeof DevProfileSchema>
-
 export const UpdateUserInputSchema = UserSchema.pick({
   bio: true,
   avatar: true,
@@ -50,6 +42,14 @@ export const UpdateUserInputSchema = UserSchema.pick({
   availability: true,
 }).partial()
 export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>
+
+export const DevProfileSchema = UserSchema.extend({
+  projectCount: z.number().int().default(0),
+  articleCount: z.number().int().default(0),
+  reputation: z.number().int().default(0),
+  isFollowing: z.boolean().optional(),
+})
+export type DevProfile = z.infer<typeof DevProfileSchema>
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
@@ -75,12 +75,3 @@ export const AuthTokensSchema = z.object({
   expiresIn: z.number(),
 })
 export type AuthTokens = z.infer<typeof AuthTokensSchema>
-
-export const UpdateUserInputSchema = UserSchema.pick({
-  bio: true,
-  avatar: true,
-  githubUrl: true,
-  portfolioLinks: true,
-  availability: true,
-}).partial()
-export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>
