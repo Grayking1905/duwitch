@@ -42,6 +42,15 @@ export const DevProfileSchema = UserSchema.extend({
 })
 export type DevProfile = z.infer<typeof DevProfileSchema>
 
+export const UpdateUserInputSchema = UserSchema.pick({
+  bio: true,
+  avatar: true,
+  githubUrl: true,
+  portfolioLinks: true,
+  availability: true,
+}).partial()
+export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>
+
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export const RegisterInputSchema = z.object({

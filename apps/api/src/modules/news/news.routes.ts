@@ -81,7 +81,7 @@ export async function newsRoutes(app: FastifyInstance) {
       const userId = req.user.sub
       const { title, content, tags = [] } = CreateArticleInputSchema.parse(req.body)
       const slug =
-        title
+        body.title
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-|-$/g, '') +
@@ -91,9 +91,9 @@ export async function newsRoutes(app: FastifyInstance) {
       const article = await prisma.article.create({
         data: {
           slug,
-          title,
-          content,
-          tags,
+          title: body.title,
+          content: body.content,
+          tags: body.tags ?? [],
           source: 'COMMUNITY',
           authorId: userId,
           published: false, // requires review
