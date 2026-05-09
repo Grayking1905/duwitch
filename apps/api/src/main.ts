@@ -82,7 +82,7 @@ async function bootstrap(): Promise<void> {
       credentials: true,
     },
   })
-  initWebSocket(io)
+  initWebSocket(io, app)
 
   // ── Health ────────────────────────────────────────────────────────
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
