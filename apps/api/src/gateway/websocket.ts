@@ -1,8 +1,9 @@
+import type { FastifyInstance } from 'fastify'
 import type { Server, Socket } from 'socket.io'
 import type { FastifyInstance } from 'fastify'
 import { prisma } from '../db/postgres/client'
 
-export function initWebSocket(io: Server, app: FastifyInstance) {
+export function initWebSocket(app: FastifyInstance, io: Server) {
   // ── Auth middleware ───────────────────────────────────────────────────
   const authMiddleware = (socket: Socket, next: (err?: Error) => void) => {
     const token = socket.handshake.auth['token'] as string | undefined
@@ -13,11 +14,9 @@ export function initWebSocket(io: Server, app: FastifyInstance) {
       socket.data.userId = payload.sub
       next()
     } catch {
-      next(new Error('INVALID_TOKEN'))
+      next(new Error('UNAUTHORIZED'))
     }
-  }
-
-  io.use(authMiddleware)
+  })
 
   // ── /rooms namespace ─────────────────────────────────────────────────
   const roomsNs = io.of('/rooms')
