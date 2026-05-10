@@ -25,6 +25,12 @@ export function initWebSocket(io: Server, app: FastifyInstance) {
   roomsNs.use(authMiddleware)
   roomsNs.on('connection', (socket: Socket) => {
     socket.on('join-room', async (roomId: string) => {
+      // 🛡️ Sentinel: Verify room exists and is live to prevent BOLA
+      const room = await prisma.room.findFirst({
+        where: { id: roomId, isLive: true },
+      })
+      if (!room) return
+
       await socket.join(roomId)
       socket.to(roomId).emit('presence-update', { userId: socket.data.userId, action: 'joined' })
     })
@@ -34,7 +40,15 @@ export function initWebSocket(io: Server, app: FastifyInstance) {
       socket.to(roomId).emit('presence-update', { userId: socket.data.userId, action: 'left' })
     })
 
-    socket.on('chat-message', (payload: { roomId: string; content: string; type: string }) => {
+    socket.on('chat-message', async (payload: { roomId: string; content: string; type: string }) => {
+      // 🛡️ Sentinel: Verify room membership and live status to prevent BOLA
+      if (!socket.rooms.has(payload.roomId)) return
+
+      const room = await prisma.room.findFirst({
+        where: { id: payload.roomId, isLive: true },
+      })
+      if (!room) return
+
       roomsNs.to(payload.roomId).emit('chat-message', {
         ...payload,
         authorId: socket.data.userId as string,
