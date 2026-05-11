@@ -37,7 +37,8 @@ export class AuthService {
       },
     })
 
-    return { user, message: 'Registration successful' }
+    const refreshToken = await this.issueRefreshToken(user.id)
+    return { user, refreshToken, message: 'Registration successful' }
   }
 
   async login(input: LoginInput) {
@@ -59,9 +60,8 @@ export class AuthService {
       })
     }
 
-    const { accessToken, refreshToken } = await this.issueTokens(user.id)
+    const refreshToken = await this.issueRefreshToken(user.id)
     return {
-      accessToken,
       refreshToken,
       user: {
         id: user.id,
@@ -75,16 +75,16 @@ export class AuthService {
   }
 
   async refreshToken(token: string) {
-    const stored = await redisClient.get(`refresh:${token}`)
-    if (!stored) {
+    const userId = await redisClient.get(`refresh:${token}`)
+    if (!userId) {
       throw Object.assign(new Error('Invalid or expired refresh token'), {
         statusCode: 401,
         code: 'INVALID_REFRESH_TOKEN',
       })
     }
-    const userId = stored
     await redisClient.del(`refresh:${token}`)
-    return this.issueTokens(userId)
+    const nextToken = await this.issueRefreshToken(userId)
+    return { nextToken, userId }
   }
 
   async getMe(userId: string) {
@@ -104,15 +104,12 @@ export class AuthService {
     })
   }
 
-  private async issueTokens(userId: string) {
+  private async issueRefreshToken(userId: string) {
     const { randomUUID } = await import('crypto')
     const refreshToken = randomUUID()
 
     await redisClient.setex(`refresh:${refreshToken}`, REFRESH_TTL_SECONDS, userId)
 
-    // NOTE: accessToken signing needs app.jwt — injected at route level in production
-    // For now we return a placeholder; hook up app.jwt.sign() in auth.routes.ts
-    const accessToken = `placeholder.${Buffer.from(JSON.stringify({ sub: userId })).toString('base64')}.sig`
-    return { accessToken, refreshToken }
+    return refreshToken
   }
 }
