@@ -40,21 +40,24 @@ export function initWebSocket(io: Server, app: FastifyInstance) {
       socket.to(roomId).emit('presence-update', { userId: socket.data.userId, action: 'left' })
     })
 
-    socket.on('chat-message', async (payload: { roomId: string; content: string; type: string }) => {
-      // 🛡️ Sentinel: Verify room membership and live status to prevent BOLA
-      if (!socket.rooms.has(payload.roomId)) return
+    socket.on(
+      'chat-message',
+      async (payload: { roomId: string; content: string; type: string }) => {
+        // 🛡️ Sentinel: Verify room membership and live status to prevent BOLA
+        if (!socket.rooms.has(payload.roomId)) return
 
-      const room = await prisma.room.findFirst({
-        where: { id: payload.roomId, isLive: true },
-      })
-      if (!room) return
+        const room = await prisma.room.findFirst({
+          where: { id: payload.roomId, isLive: true },
+        })
+        if (!room) return
 
-      roomsNs.to(payload.roomId).emit('chat-message', {
-        ...payload,
-        authorId: socket.data.userId as string,
-        timestamp: new Date().toISOString(),
-      })
-    })
+        roomsNs.to(payload.roomId).emit('chat-message', {
+          ...payload,
+          authorId: socket.data.userId as string,
+          timestamp: new Date().toISOString(),
+        })
+      }
+    )
 
     socket.on('disconnect', () => {
       // Cleanup presence when socket disconnects
