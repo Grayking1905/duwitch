@@ -37,7 +37,8 @@ export class AuthService {
       },
     })
 
-    return { user, message: 'Registration successful' }
+    const refreshToken = await this.issueRefreshToken(user.id)
+    return { user, userId: user.id, refreshToken, message: 'Registration successful' }
   }
 
   async login(input: LoginInput) {
@@ -59,9 +60,9 @@ export class AuthService {
       })
     }
 
-    const { accessToken, refreshToken } = await this.issueTokens(user.id)
+    const refreshToken = await this.issueRefreshToken(user.id)
     return {
-      accessToken,
+      userId: user.id,
       refreshToken,
       user: {
         id: user.id,
@@ -84,7 +85,8 @@ export class AuthService {
     }
     const userId = stored
     await redisClient.del(`refresh:${token}`)
-    return this.issueTokens(userId)
+    const refreshToken = await this.issueRefreshToken(userId)
+    return { userId, refreshToken }
   }
 
   async getMe(userId: string) {
@@ -104,15 +106,11 @@ export class AuthService {
     })
   }
 
-  private async issueTokens(userId: string) {
-    const { randomUUID } = await import('crypto')
+  private async issueRefreshToken(userId: string) {
+    const { randomUUID } = await import('node:crypto')
     const refreshToken = randomUUID()
 
     await redisClient.setex(`refresh:${refreshToken}`, REFRESH_TTL_SECONDS, userId)
-
-    // NOTE: accessToken signing needs app.jwt — injected at route level in production
-    // For now we return a placeholder; hook up app.jwt.sign() in auth.routes.ts
-    const accessToken = `placeholder.${Buffer.from(JSON.stringify({ sub: userId })).toString('base64')}.sig`
-    return { accessToken, refreshToken }
+    return refreshToken
   }
 }
