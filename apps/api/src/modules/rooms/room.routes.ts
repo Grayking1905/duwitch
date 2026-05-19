@@ -16,25 +16,21 @@ export async function roomsRoutes(app: FastifyInstance) {
   })
 
   // POST /rooms — create
-  app.post(
-    '/',
-    { preHandler: [app.authenticate] },
-    async (req, reply) => {
-      const userId = req.user.sub
-      const body = CreateRoomInputSchema.parse(req.body)
-      const room = await prisma.room.create({
-        data: {
-          name: body.name,
-          description: body.description,
-          hostId: userId,
-          maxMembers: body.maxMembers ?? 50,
-          tags: body.tags ?? [],
-          isLive: true,
-        },
-      })
-      return reply.code(201).send(room)
-    }
-  )
+  app.post('/', { preHandler: [app.authenticate] }, async (req, reply) => {
+    const userId = req.user.sub
+    const body = CreateRoomInputSchema.parse(req.body)
+    const room = await prisma.room.create({
+      data: {
+        name: body.name,
+        description: body.description,
+        hostId: userId,
+        maxMembers: body.maxMembers ?? 50,
+        tags: body.tags ?? [],
+        isLive: true,
+      },
+    })
+    return reply.code(201).send(room)
+  })
 
   // GET /rooms/:roomId
   app.get<{ Params: RoomParams }>('/:roomId', async (req, reply) => {

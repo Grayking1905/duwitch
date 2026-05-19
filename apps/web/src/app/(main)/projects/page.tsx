@@ -1,13 +1,5 @@
 import type { Metadata } from 'next'
-import {
-  Filter,
-  Lock,
-  DollarSign,
-  GitBranch,
-  Zap,
-  Crown,
-  Star,
-} from 'lucide-react'
+import { Filter, Lock, DollarSign, GitBranch, Zap, Crown, Star } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Projects Marketplace',

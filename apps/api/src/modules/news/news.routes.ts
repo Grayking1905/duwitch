@@ -74,32 +74,28 @@ export async function newsRoutes(app: FastifyInstance) {
   })
 
   // POST /news/articles — community submission
-  app.post(
-    '/articles',
-    { preHandler: [app.authenticate] },
-    async (req, reply) => {
-      const userId = req.user.sub
-      const body = CreateArticleInputSchema.parse(req.body)
-      const slug =
-        body.title
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, '') +
-        '-' +
-        Date.now()
+  app.post('/articles', { preHandler: [app.authenticate] }, async (req, reply) => {
+    const userId = req.user.sub
+    const body = CreateArticleInputSchema.parse(req.body)
+    const slug =
+      body.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') +
+      '-' +
+      Date.now()
 
-      const article = await prisma.article.create({
-        data: {
-          slug,
-          title: body.title,
-          content: body.content,
-          tags: body.tags ?? [],
-          source: 'COMMUNITY',
-          authorId: userId,
-          published: false, // requires review
-        },
-      })
-      return reply.code(201).send({ article, message: 'Article submitted for review' })
-    }
-  )
+    const article = await prisma.article.create({
+      data: {
+        slug,
+        title: body.title,
+        content: body.content,
+        tags: body.tags ?? [],
+        source: 'COMMUNITY',
+        authorId: userId,
+        published: false, // requires review
+      },
+    })
+    return reply.code(201).send({ article, message: 'Article submitted for review' })
+  })
 }

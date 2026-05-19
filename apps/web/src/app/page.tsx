@@ -1,16 +1,5 @@
 import Link from 'next/link'
-import {
-  ArrowRight,
-  Code2,
-  Globe,
-  Layers,
-  Radio,
-  Rss,
-  Users,
-  Zap,
-  Cpu,
-  Shield,
-} from 'lucide-react'
+import { ArrowRight, Code2, Globe, Layers, Radio, Rss, Users, Zap, Cpu, Shield } from 'lucide-react'
 
 export default function LandingPage() {
   return (
