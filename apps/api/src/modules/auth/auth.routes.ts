@@ -10,21 +10,24 @@ export async function authRoutes(app: FastifyInstance) {
   app.post('/register', async (req, reply) => {
     const body = RegisterInputSchema.parse(req.body)
     const result = await authService.register(body)
-    return reply.code(201).send(result)
+    const accessToken = app.jwt.sign({ sub: result.userId })
+    return reply.code(201).send({ ...result, accessToken, expiresIn: 900 })
   })
 
   // POST /auth/login
   app.post('/login', async (req, reply) => {
     const body = LoginInputSchema.parse(req.body)
     const result = await authService.login(body)
-    return reply.send(result)
+    const accessToken = app.jwt.sign({ sub: result.userId })
+    return reply.send({ ...result, accessToken, expiresIn: 900 })
   })
 
   // POST /auth/refresh
   app.post('/refresh', async (req, reply) => {
-    const { refreshToken } = z.object({ refreshToken: z.string() }).parse(req.body)
-    const result = await authService.refreshToken(refreshToken)
-    return reply.send(result)
+    const { refreshToken: oldToken } = z.object({ refreshToken: z.string() }).parse(req.body)
+    const { userId, refreshToken } = await authService.refreshToken(oldToken)
+    const accessToken = app.jwt.sign({ sub: userId })
+    return reply.send({ accessToken, refreshToken, expiresIn: 900 })
   })
 
   // GET /auth/me — requires JWT
