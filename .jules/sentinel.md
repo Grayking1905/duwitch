@@ -12,3 +12,8 @@
 **Vulnerability:** A Broken Object Level Authorization (BOLA) vulnerability was identified in the `/rooms` WebSocket namespace. Authenticated users could join any room by `roomId` without verifying if the room existed or was currently live. Additionally, users could broadcast messages to any room without being a member of that room.
 **Learning:** WebSocket event handlers often bypass the standard route-level authorization logic. Membership and resource state must be explicitly verified within the socket event handlers.
 **Prevention:** In WebSocket handlers, always verify the target resource's state (e.g., `isLive`) and the user's authorization/membership (e.g., `socket.rooms.has(roomId)`) before processing actions or broadcasting messages.
+
+## 2025-05-17 - Insecure Authentication with Placeholder Tokens
+**Vulnerability:** The authentication system was issuing insecure "placeholder" access tokens that were merely base64-encoded JSON strings without cryptographic signatures. This would allow anyone to impersonate any user by forging a token.
+**Learning:** The `AuthService` lacked access to the Fastify instance for JWT signing, leading to the use of placeholders.
+**Prevention:** Separation of concerns: the service layer should handle business logic and persistence (e.g., refresh token storage in Redis), while the route layer handles cryptographic operations (JWT signing) using the application's secret. Implement Refresh Token Rotation (RTR) to mitigate the risk of stolen long-lived tokens.
