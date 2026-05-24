@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import bcrypt from 'bcryptjs'
 import { prisma } from '../../db/postgres/client'
 import { redisClient } from '../../db/redis/client'
@@ -37,7 +38,13 @@ export class AuthService {
       },
     })
 
-    return { user, message: 'Registration successful' }
+    const refreshToken = await this.issueRefreshToken(user.id)
+    return {
+      userId: user.id,
+      refreshToken,
+      user,
+      message: 'Registration successful',
+    }
   }
 
   async login(input: LoginInput) {
@@ -59,17 +66,19 @@ export class AuthService {
       })
     }
 
-    const { accessToken, refreshToken } = await this.issueTokens(user.id)
+    const refreshToken = await this.issueRefreshToken(user.id)
     return {
-      accessToken,
+      userId: user.id,
       refreshToken,
       user: {
         id: user.id,
         username: user.username,
         email: user.email,
         avatar: user.avatar,
+        bio: user.bio,
         availability: user.availability,
         xp: user.xp,
+        createdAt: user.createdAt,
       },
     }
   }
@@ -84,7 +93,8 @@ export class AuthService {
     }
     const userId = stored
     await redisClient.del(`refresh:${token}`)
-    return this.issueTokens(userId)
+    const newRefreshToken = await this.issueRefreshToken(userId)
+    return { userId, refreshToken: newRefreshToken }
   }
 
   async getMe(userId: string) {
@@ -104,15 +114,9 @@ export class AuthService {
     })
   }
 
-  private async issueTokens(userId: string) {
-    const { randomUUID } = await import('crypto')
+  async issueRefreshToken(userId: string) {
     const refreshToken = randomUUID()
-
     await redisClient.setex(`refresh:${refreshToken}`, REFRESH_TTL_SECONDS, userId)
-
-    // NOTE: accessToken signing needs app.jwt — injected at route level in production
-    // For now we return a placeholder; hook up app.jwt.sign() in auth.routes.ts
-    const accessToken = `placeholder.${Buffer.from(JSON.stringify({ sub: userId })).toString('base64')}.sig`
-    return { accessToken, refreshToken }
+    return refreshToken
   }
 }
